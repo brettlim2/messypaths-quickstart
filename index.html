@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="A one-page intro to connecting the MessyPaths MCP, querying it, and what its outputs look like.">
+<title>MessyPaths Quickstart</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap">
+<style>
+:root {
+  --bg:#F6F5FB; --surface:#FFFFFF; --surface2:#EFEDF8;
+  --purple:#6D28D9; --purple-light:#6D28D9; --purple-dim:#EAE3FB;
+  --teal:#0F766E; --teal-dim:#DDF3F0;
+  --amber:#B45309; --amber-dim:#FBEBD0;
+  --text:#2A2745; --text-dim:#5F5B7D; --text-bright:#0E0C20;
+  --border:#DAD6EC; --border-bright:#B9B3DA;
+  --code-bg:#0E0C20; --code-text:#E2E0F0; --code-dim:#8B87A8;
+  --font-display:'Space Grotesk',system-ui,sans-serif;
+  --font-mono:'Space Mono',ui-monospace,monospace;
+  color-scheme: light;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0A0A14; --surface:#13131F; --surface2:#1C1C2E;
+    --purple:#7C3AED; --purple-light:#A78BFA; --purple-dim:#2D1B6B;
+    --teal:#14B8A6; --teal-dim:#0D2B28;
+    --amber:#F59E0B; --amber-dim:#2D1E00;
+    --text:#E2E0F0; --text-dim:#8B87A8; --text-bright:#F8F7FF;
+    --border:#2A2740; --border-bright:#3D3960;
+    --code-bg:#0A0A14; --code-text:#E2E0F0; --code-dim:#8B87A8;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg:#0A0A14; --surface:#13131F; --surface2:#1C1C2E;
+  --purple:#7C3AED; --purple-light:#A78BFA; --purple-dim:#2D1B6B;
+  --teal:#14B8A6; --teal-dim:#0D2B28;
+  --amber:#F59E0B; --amber-dim:#2D1E00;
+  --text:#E2E0F0; --text-dim:#8B87A8; --text-bright:#F8F7FF;
+  --border:#2A2740; --border-bright:#3D3960;
+  --code-bg:#0A0A14; --code-text:#E2E0F0; --code-dim:#8B87A8;
+  color-scheme: dark;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body { background:var(--bg); color:var(--text); font-family:var(--font-display); font-size:15px; line-height:1.6; overflow-x:hidden; }
+.wrap { max-width:960px; margin:0 auto; padding:0 0 64px; }
+a { color:var(--purple-light); }
+
+.topbar { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:20px 0; border-bottom:1px solid var(--border); }
+.logo { font-weight:700; font-size:18px; letter-spacing:-0.02em; color:var(--purple-light); }
+.meta { font-family:var(--font-mono); font-size:11px; letter-spacing:.08em; color:var(--text-dim); text-transform:uppercase; }
+
+.hero { padding:56px 0 40px; }
+.eyebrow { font-family:var(--font-mono); font-size:11px; color:var(--teal); letter-spacing:.14em; text-transform:uppercase; display:flex; align-items:center; gap:12px; margin-bottom:18px; }
+.eyebrow::before { content:''; width:32px; height:1px; background:var(--teal); }
+h1 { font-size:clamp(40px,7vw,76px); line-height:1.02; letter-spacing:-0.03em; font-weight:700; color:var(--text-bright); margin-bottom:16px; }
+h1 span { color:var(--purple-light); }
+.sub { font-size:clamp(17px,2.2vw,22px); font-weight:300; color:var(--text-dim); max-width:640px; line-height:1.4; }
+.chips { display:flex; flex-wrap:wrap; gap:10px; margin-top:28px; }
+.chip { padding:7px 14px; border:1px solid var(--border-bright); border-radius:4px; font-size:12px; color:var(--text-dim); text-decoration:none; transition:all .2s; }
+.chip:hover { border-color:var(--purple); color:var(--purple-light); }
+
+section { padding:48px 0 8px; border-top:1px solid var(--border); margin-top:24px; }
+.num { font-family:var(--font-mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--purple-light); margin-bottom:10px; }
+h2 { font-size:clamp(28px,4vw,42px); line-height:1.1; letter-spacing:-0.025em; color:var(--text-bright); margin-bottom:10px; }
+h2 span { color:var(--purple-light); }
+.intro { color:var(--text-dim); font-size:16px; max-width:680px; margin-bottom:28px; }
+h3 { font-size:17px; font-weight:600; color:var(--text-bright); margin-bottom:8px; }
+
+.cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:16px; margin:20px 0; }
+.card { padding:22px; border:1px solid var(--border); border-radius:8px; background:var(--surface); }
+.card p, .card li { font-size:13.5px; color:var(--text-dim); }
+.card ol { padding-left:18px; margin-top:8px; }
+.card li { padding:2px 0; }
+.tag { font-family:var(--font-mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase; margin-bottom:10px; display:block; }
+.tag.p { color:var(--purple-light); } .tag.t { color:var(--teal); } .tag.a { color:var(--amber); }
+
+.codewrap { position:relative; margin:14px 0; }
+pre { background:var(--code-bg); color:var(--code-text); border:1px solid var(--border); border-radius:6px; padding:16px 18px; font-family:var(--font-mono); font-size:12px; line-height:1.65; overflow-x:auto; white-space:pre; }
+pre .k { color:var(--code-dim); } pre .s { color:#5EEAD4; } pre .n { color:#FBBF24; }
+.copy { position:absolute; top:8px; right:8px; font-family:var(--font-mono); font-size:10px; letter-spacing:.08em; text-transform:uppercase; padding:4px 9px; border-radius:3px; border:1px solid #3D3960; background:#1C1C2E; color:#A78BFA; cursor:pointer; }
+.copy:hover { border-color:#7C3AED; }
+.note { font-size:13px; color:var(--text-dim); margin-top:6px; }
+
+.callout { padding:18px 22px; border-left:3px solid var(--teal); background:var(--teal-dim); border-radius:0 6px 6px 0; margin:22px 0; }
+.callout.amber { border-left-color:var(--amber); background:var(--amber-dim); }
+.callout .lab { font-family:var(--font-mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--teal); margin-bottom:6px; }
+.callout.amber .lab { color:var(--amber); }
+.callout p { color:var(--text-bright); font-size:14.5px; }
+
+.steps { display:flex; flex-direction:column; gap:10px; margin:18px 0; }
+.step { display:flex; gap:16px; padding:14px 18px; border:1px solid var(--border); border-radius:8px; background:var(--surface); align-items:flex-start; }
+.step b.n { font-family:var(--font-mono); font-size:18px; color:var(--purple-light); min-width:28px; }
+.step p { font-size:14px; color:var(--text-dim); }
+.step code, td code, .callout code { font-family:var(--font-mono); font-size:12px; color:var(--teal); }
+
+.tablewrap { overflow-x:auto; border:1px solid var(--border); border-radius:8px; margin:16px 0; background:var(--surface); }
+table { width:100%; border-collapse:collapse; font-size:13px; min-width:480px; }
+th { text-align:left; padding:10px 14px; background:var(--purple-dim); color:var(--purple-light); font-family:var(--font-mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; }
+td { padding:10px 14px; border-top:1px solid var(--border); color:var(--text); vertical-align:top; }
+td:first-child { font-family:var(--font-mono); font-size:12px; color:var(--text-dim); white-space:nowrap; }
+
+.sample { border:1px solid var(--border); border-radius:8px; background:var(--surface); padding:22px; margin:18px 0; }
+.sample .q { font-family:var(--font-mono); font-size:12px; color:var(--text-dim); margin-bottom:14px; }
+.sample .q b { color:var(--purple-light); font-weight:700; }
+.bars { display:flex; flex-direction:column; gap:9px; }
+.bar { display:grid; grid-template-columns:minmax(110px,170px) 1fr 70px; gap:12px; align-items:center; font-size:13px; }
+.bar .track { height:14px; background:var(--surface2); border-radius:3px; overflow:hidden; }
+.bar .fill { display:block; height:100%; background:var(--purple); border-radius:3px; }
+.bar .fill.t { background:var(--teal); }
+.bar .v { font-family:var(--font-mono); font-size:12px; color:var(--text-bright); text-align:right; }
+.bar .l { color:var(--text); }
+.src { font-family:var(--font-mono); font-size:10.5px; color:var(--text-dim); margin-top:14px; letter-spacing:.04em; }
+.two { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+@media (max-width:700px) { .two { grid-template-columns:1fr; } .bar { grid-template-columns:100px 1fr 54px; gap:8px; } .hero { padding-top:36px; } }
+
+details { border:1px solid var(--border); border-radius:8px; background:var(--surface); margin-bottom:10px; }
+summary { cursor:pointer; padding:16px 20px; font-weight:600; color:var(--text-bright); list-style:none; display:flex; justify-content:space-between; gap:16px; }
+summary::-webkit-details-marker { display:none; }
+summary::after { content:'+'; font-family:var(--font-mono); color:var(--purple-light); }
+details[open] summary::after { content:'–'; }
+details > div { padding:0 20px 18px; color:var(--text-dim); font-size:14px; }
+details > div p + p { margin-top:8px; }
+
+footer { margin-top:56px; padding-top:24px; border-top:1px solid var(--border); font-family:var(--font-mono); font-size:11px; color:var(--text-dim); display:flex; flex-wrap:wrap; justify-content:space-between; gap:10px 24px; }
+
+.story { display:flex; flex-direction:column; gap:34px; margin:26px 0; }
+.beat { display:grid; grid-template-columns:34px 1fr; gap:14px; }
+.bn { font-family:var(--font-mono); font-size:13px; width:30px; height:30px; border-radius:50%; border:1px solid var(--purple-light); color:var(--purple-light); display:flex; align-items:center; justify-content:center; margin-top:2px; }
+.beat h3 { font-size:21px; letter-spacing:-0.01em; margin-bottom:4px; }
+.bp { color:var(--text-dim); font-size:14.5px; margin-bottom:12px; max-width:620px; }
+.beat .sample { margin:0; }
+.venn { display:grid; grid-template-columns:minmax(220px,1.1fr) 1fr; gap:20px; align-items:center; }
+.venn svg { width:100%; height:auto; max-height:230px; }
+.vc.a { fill:var(--purple); fill-opacity:.55; stroke:var(--purple-light); stroke-width:1.5; }
+.vc.b { fill:var(--teal); fill-opacity:.5; stroke:var(--teal); stroke-width:1.5; }
+.vt { font:700 13px var(--font-display); text-anchor:middle; fill:var(--text-bright); }
+.vt.a { fill:var(--purple-light); } .vt.b { fill:var(--teal); }
+.vs.big { font:700 18px var(--font-display); fill:var(--text-bright); }
+.vs { font:400 10px var(--font-mono); text-anchor:middle; fill:var(--text); }
+.vo { font:400 9px var(--font-mono); text-anchor:middle; fill:var(--text-bright); letter-spacing:.08em; text-transform:uppercase; }
+.facts { display:flex; flex-direction:column; gap:12px; }
+.fact { display:flex; gap:14px; align-items:baseline; }
+.fact b { font-size:30px; letter-spacing:-0.03em; color:var(--text-bright); min-width:78px; }
+.fact span { font-size:13px; color:var(--text-dim); }
+.strips { display:flex; flex-direction:column; gap:8px; }
+.srow { display:grid; grid-template-columns:84px 1fr; gap:10px; align-items:center; }
+.sl { font-size:12px; color:var(--text); }
+.sl.a { color:var(--purple-light); } .sl.b { color:var(--teal); }
+.cells { display:grid; grid-template-columns:repeat(24,1fr); gap:2px; }
+.cell { height:30px; border-radius:2px; background:var(--purple); }
+.cell.b { background:var(--teal); }
+.cell.pk { outline:1.5px solid var(--text-bright); outline-offset:-1.5px; }
+.ticks { position:relative; height:14px; display:block; }
+.ticks span { position:absolute; font-family:var(--font-mono); font-size:10px; color:var(--text-dim); }
+.chips2 { display:flex; flex-wrap:wrap; gap:8px 22px; margin-top:14px; font-size:13px; color:var(--text-dim); }
+.chips2 b { font-size:18px; color:var(--text-bright); margin-right:4px; }
+.legend { display:flex; gap:18px; font-size:12px; color:var(--text-dim); margin-bottom:10px; }
+.sw { display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:6px; background:var(--purple); }
+.sw.b { background:var(--teal); }
+.pairs { display:flex; flex-direction:column; gap:12px; }
+.pair { display:grid; grid-template-columns:70px 1fr; gap:12px; align-items:center; }
+.pair .l { font-family:var(--font-mono); font-size:11px; color:var(--text-dim); }
+.pb { display:flex; flex-direction:column; gap:3px; }
+.pb .track { position:relative; height:12px; background:transparent; display:flex; align-items:center; gap:8px; }
+.pb .fill { height:10px; border-radius:2px; background:var(--purple); display:block; }
+.pb .fill.t { background:var(--teal); }
+.pb b { font-family:var(--font-mono); font-size:11px; color:var(--text-bright); font-weight:400; }
+@media (max-width:700px) { .venn { grid-template-columns:1fr; } .beat { grid-template-columns:1fr; } .bn { display:none; } .srow { grid-template-columns:62px 1fr; } .sl { font-size:11px; } }
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <div class="topbar">
+    <div class="logo">MessyNet</div>
+    <div class="meta">MessyPaths MCP · Quickstart</div>
+  </div>
+
+  <header class="hero">
+    <div class="eyebrow">Mobility data, from your agent</div>
+    <h1>Ask about places.<br><span>Get movement data back.</span></h1>
+    <p class="sub">MessyPaths is an MCP server. Once it's connected, Claude can look up places, compare sites and read visitation patterns directly, with no dashboard export in between.</p>
+    <nav class="chips">
+      <a class="chip" href="#connect">01 · Connect</a>
+      <a class="chip" href="#query">02 · Query</a>
+      <a class="chip" href="#outputs">03 · Sample outputs</a>
+      <a class="chip" href="#faq">04 · FAQ</a>
+    </nav>
+  </header>
+
+  <section id="connect">
+    <div class="num">01 · Connect</div>
+    <h2>Add the MCP in <span>two minutes.</span></h2>
+    <p class="intro">You need access to MessyPaths, which MessyNet sets up per organisation. Then pick the client you work in.</p>
+
+    <div class="callout amber">
+      <div class="lab">MCP server URL</div>
+      <p>Server URL: <code>https://d26gavn7ypy0ay.cloudfront.net/mcp/</code>. Sign in with the account tied to your organisation if prompted.</p>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <span class="tag p">Claude app (web / desktop)</span>
+        <h3>Custom connector</h3>
+        <ol>
+          <li>Open Settings → Connectors</li>
+          <li>Choose Add custom connector</li>
+          <li>Name it <b>MessyPaths</b> and paste the server URL above</li>
+          <li>Authorise, then enable it in your chat</li>
+        </ol>
+      </div>
+      <div class="card">
+        <span class="tag t">Claude Code</span>
+        <h3>One command</h3>
+        <p>Run this in your terminal, then start a session and check with <code>/mcp</code>.</p>
+        <div class="codewrap">
+<pre id="cc"><span class="k">$</span> claude mcp add --transport http \
+    messypaths https://d26gavn7ypy0ay.cloudfront.net/mcp/</pre>
+          <button class="copy" data-target="cc">Copy</button>
+        </div>
+      </div>
+      <div class="card">
+        <span class="tag a">Other MCP clients</span>
+        <h3>Any HTTP MCP client</h3>
+        <p>Add a remote server of type HTTP with <code>https://d26gavn7ypy0ay.cloudfront.net/mcp/</code>. Tools appear under the <code>MessyPaths</code> name.</p>
+      </div>
+    </div>
+
+    <h3 style="margin-top:28px">Check it works</h3>
+    <p class="note" style="margin-bottom:8px">Ask Claude this. It should answer from the MCP, not from memory.</p>
+    <div class="codewrap">
+<pre id="p0"><span class="s">"Using MessyPaths, what date range of data is available, and which countries can I search?"</span></pre>
+      <button class="copy" data-target="p0">Copy</button>
+    </div>
+  </section>
+
+  <section id="query">
+    <div class="num">02 · Query</div>
+    <h2>Describe the question.<br><span>The agent runs the jobs.</span></h2>
+    <p class="intro">You don't need to know tool names. Name the places, the window and what you want to compare. Behind the scenes the agent follows the same sequence every time, which is what makes results replicable.</p>
+
+    <div class="steps">
+      <div class="step"><b class="n">1</b><p><b>Check coverage.</b> <code>data_coverage</code> confirms which days exist before a window is chosen.</p></div>
+      <div class="step"><b class="n">2</b><p><b>Find places.</b> <code>locations_search</code> looks up venues in the Overture Maps catalogue. <code>aois_create</code> turns a place into an area of interest (a point plus radius, or a polygon).</p></div>
+      <div class="step"><b class="n">3</b><p><b>Run jobs.</b> <code>jobs_create</code> or <code>jobs_create_batch</code> starts one or many independent analyses.</p></div>
+      <div class="step"><b class="n">4</b><p><b>Poll and read.</b> <code>jobs_get_many</code> until every job is succeeded, failed or cancelled. Results come back as structured data.</p></div>
+    </div>
+
+    <h3 style="margin-top:28px">Prompts to try</h3>
+    <div class="codewrap">
+<pre id="p1"><span class="s">"Compare Ayala Malls TriNoma and SM City North EDSA for
+ 25–27 Sep 2026 (Manila time). Show relative panel size,
+ median dwell and how much their audiences overlap."</span></pre>
+      <button class="copy" data-target="p1">Copy</button>
+    </div>
+    <div class="codewrap">
+<pre id="p2"><span class="s">"For both malls, show the hour-by-hour rhythm over the same
+ window and how far visitors live from each."</span></pre>
+      <button class="copy" data-target="p2">Copy</button>
+    </div>
+
+    <h3 style="margin-top:28px">What the agent can run</h3>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Job type</th><th>What you get</th></tr></thead>
+        <tbody>
+          <tr><td>presence.summary</td><td>Panel sample size and dwell for one area and window</td></tr>
+          <tr><td>presence.series</td><td>Stepped rhythm, such as hourly, in a single job</td></tr>
+          <tr><td>presence.compare</td><td>2–10 areas side by side, with pairwise audience overlap</td></tr>
+          <tr><td>presence.catchment</td><td>Where visitors' homes sit, as shares by location bin</td></tr>
+          <tr><td>trip_chains.*</td><td>Search, export, mission mix and origin–destination structure</td></tr>
+          <tr><td>cohort.ses</td><td>Within-country socio-economic profile of a visitor panel</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Ask Claude to call <code>jobs_catalog</code> for the live list and input fields.</p>
+  </section>
+
+  <section id="outputs">
+    <div class="num">03 · Sample outputs</div>
+    <h2>One question, <span>four answers.</span></h2>
+    <p class="intro">We asked MessyPaths about two Quezon City malls that sit side by side: <b style="color:var(--purple-light)">Ayala Malls TriNoma</b> and <b style="color:var(--teal)">SM City North EDSA</b>. Window: 25–27 Sep 2026, Manila time, visits of at least 60 seconds. Everything below came back from MCP jobs. Panel counts are a sample, so we show ratios and shares.</p>
+
+    <div class="story">
+      <div class="beat"><span class="bn">1</span><div>
+        <h3>They share half an audience.</h3>
+        <p class="bp">Same corner, overlapping crowds. Of the panel visitors seen at North EDSA, half also visited TriNoma in the same three days.</p>
+        <div class="sample">
+          <div class="q"><b>presence.compare</b> · panel size and overlap</div>
+          <div class="venn">
+            <svg viewBox="0 0 300 190" role="img" aria-label="Two overlapping circles sized by panel visitors: TriNoma 84, North EDSA 70, 35 in common">
+              <circle cx="122" cy="108" r="74" class="vc a"/>
+              <circle cx="184.5" cy="108" r="67.5" class="vc b"/>
+              <text x="84" y="14" class="vt a">TriNoma</text>
+              <text x="222" y="14" class="vt b">North EDSA</text>
+              <text x="82" y="112" class="vs big">1.2×</text>
+              <text x="224" y="112" class="vs big">1.0×</text>
+              <text x="156" y="106" class="vo">shared</text><text x="156" y="119" class="vs">50% / 42%</text>
+            </svg>
+            <div class="facts">
+              <div class="fact"><b>50%</b><span>of North EDSA visitors also visited TriNoma</span></div>
+              <div class="fact"><b>42%</b><span>of TriNoma visitors also visited North EDSA</span></div>
+              <div class="fact"><b>1.2×</b><span>TriNoma's panel size vs North EDSA</span></div>
+            </div>
+          </div>
+          <div class="src">Job 8c7cad56-d3df-45b9-91bb-f2cff25e64aa · circle areas are proportional to panel visitors</div>
+        </div>
+      </div></div>
+
+      <div class="beat"><span class="bn">2</span><div>
+        <h3>But they don't keep people the same way.</h3>
+        <p class="bp">North EDSA visitors stay about 50% longer at the median. Same crowd, different pull.</p>
+        <div class="sample">
+          <div class="q"><b>presence.compare</b> · median dwell per visit</div>
+          <div class="bars">
+            <div class="bar"><span class="l">North EDSA</span><span class="track"><span class="fill t" style="width:100%"></span></span><span class="v">21 min</span></div>
+            <div class="bar"><span class="l">TriNoma</span><span class="track"><span class="fill" style="width:68%"></span></span><span class="v">14 min</span></div>
+          </div>
+          <div class="src">median_dwell_s: 1,280 vs 869 · same job as above</div>
+        </div>
+      </div></div>
+
+      <div class="beat"><span class="bn">3</span><div>
+        <h3>And their busiest hours differ.</h3>
+        <p class="bp">TriNoma peaks early afternoon, from 13:00 to 15:00. North EDSA builds into the evening and peaks at 18:00. Darker cells mean a bigger share of the day's presence.</p>
+        <div class="sample">
+          <div class="q"><b>presence.series</b> · hour of day, Manila, three days combined</div>
+          <div class="strips">
+            <div class="srow"><span class="sl a">TriNoma</span><span class="cells"><span class="cell a" style="opacity:0.45" title="00:00 · 3.4% of presence"></span><span class="cell a" style="opacity:0.28" title="01:00 · 1.7% of presence"></span><span class="cell a" style="opacity:0.33" title="02:00 · 2.2% of presence"></span><span class="cell a" style="opacity:0.28" title="03:00 · 1.7% of presence"></span><span class="cell a" style="opacity:0.45" title="04:00 · 3.4% of presence"></span><span class="cell a" style="opacity:0.41" title="05:00 · 3.0% of presence"></span><span class="cell a" style="opacity:0.28" title="06:00 · 1.7% of presence"></span><span class="cell a" style="opacity:0.23" title="07:00 · 1.3% of presence"></span><span class="cell a" style="opacity:0.33" title="08:00 · 2.2% of presence"></span><span class="cell a" style="opacity:0.64" title="09:00 · 5.2% of presence"></span><span class="cell a" style="opacity:0.50" title="10:00 · 3.9% of presence"></span><span class="cell a" style="opacity:0.54" title="11:00 · 4.3% of presence"></span><span class="cell a" style="opacity:0.77" title="12:00 · 6.5% of presence"></span><span class="cell a pk" style="opacity:0.91" title="13:00 · 7.8% of presence"></span><span class="cell a pk" style="opacity:0.86" title="14:00 · 7.3% of presence"></span><span class="cell a pk" style="opacity:0.86" title="15:00 · 7.3% of presence"></span><span class="cell a" style="opacity:0.59" title="16:00 · 4.7% of presence"></span><span class="cell a" style="opacity:0.59" title="17:00 · 4.7% of presence"></span><span class="cell a" style="opacity:0.81" title="18:00 · 6.9% of presence"></span><span class="cell a" style="opacity:0.72" title="19:00 · 6.0% of presence"></span><span class="cell a" style="opacity:0.68" title="20:00 · 5.6% of presence"></span><span class="cell a" style="opacity:0.45" title="21:00 · 3.4% of presence"></span><span class="cell a" style="opacity:0.41" title="22:00 · 3.0% of presence"></span><span class="cell a" style="opacity:0.37" title="23:00 · 2.6% of presence"></span></span></div>
+            <div class="srow"><span class="sl b">North EDSA</span><span class="cells"><span class="cell b" style="opacity:0.35" title="00:00 · 2.4% of presence"></span><span class="cell b" style="opacity:0.35" title="01:00 · 2.4% of presence"></span><span class="cell b" style="opacity:0.24" title="02:00 · 1.4% of presence"></span><span class="cell b" style="opacity:0.24" title="03:00 · 1.4% of presence"></span><span class="cell b" style="opacity:0.20" title="04:00 · 1.0% of presence"></span><span class="cell b" style="opacity:0.17" title="05:00 · 0.7% of presence"></span><span class="cell b" style="opacity:0.20" title="06:00 · 1.0% of presence"></span><span class="cell b" style="opacity:0.20" title="07:00 · 1.0% of presence"></span><span class="cell b" style="opacity:0.13" title="08:00 · 0.3% of presence"></span><span class="cell b" style="opacity:0.32" title="09:00 · 2.1% of presence"></span><span class="cell b" style="opacity:0.42" title="10:00 · 3.1% of presence"></span><span class="cell b" style="opacity:0.46" title="11:00 · 3.5% of presence"></span><span class="cell b" style="opacity:0.75" title="12:00 · 6.3% of presence"></span><span class="cell b" style="opacity:0.90" title="13:00 · 7.7% of presence"></span><span class="cell b" style="opacity:0.86" title="14:00 · 7.3% of presence"></span><span class="cell b" style="opacity:0.90" title="15:00 · 7.7% of presence"></span><span class="cell b" style="opacity:0.86" title="16:00 · 7.3% of presence"></span><span class="cell b pk" style="opacity:0.93" title="17:00 · 8.0% of presence"></span><span class="cell b pk" style="opacity:1.00" title="18:00 · 8.7% of presence"></span><span class="cell b pk" style="opacity:0.93" title="19:00 · 8.0% of presence"></span><span class="cell b" style="opacity:0.78" title="20:00 · 6.6% of presence"></span><span class="cell b" style="opacity:0.53" title="21:00 · 4.2% of presence"></span><span class="cell b" style="opacity:0.57" title="22:00 · 4.5% of presence"></span><span class="cell b" style="opacity:0.39" title="23:00 · 2.8% of presence"></span></span></div>
+            <div class="srow"><span class="sl"></span><span class="ticks"><span style="left:0.00%">00</span><span style="left:25.00%">06</span><span style="left:50.00%">12</span><span style="left:75.00%">18</span></span></div>
+          </div>
+          <div class="chips2">
+            <span><b>60%</b> TriNoma presence falls 10:00–20:00</span>
+            <span><b>68%</b> North EDSA presence falls 10:00–20:00</span>
+          </div>
+          <div class="src">Jobs 788aed12-e9c2-4bfc-98a5-eea24c2dcc50 (TriNoma) · 4c451890-71b2-4edf-8202-4cfb7f5683e0 (North EDSA) · hourly buckets grouped by hour of day</div>
+        </div>
+      </div></div>
+
+      <div class="beat"><span class="bn">4</span><div>
+        <h3>They also draw from the same neighbourhoods.</h3>
+        <p class="bp">Both malls have the same median home distance, 7.7 km, and about three in ten visitors live within 5 km. That's why the audiences overlap.</p>
+        <div class="sample">
+          <div class="q"><b>presence.catchment</b> · share of visitors by home distance</div>
+          <div class="legend"><span><i class="sw a"></i>TriNoma</span><span><i class="sw b"></i>North EDSA</span></div>
+          <div class="pairs"><div class="pair"><span class="l">&lt; 2 km</span><span class="pb"><span class="track"><span class="fill" style="width:57.1%"></span><b>20%</b></span><span class="track"><span class="fill t" style="width:60.0%"></span><b>21%</b></span></span></div><div class="pair"><span class="l">2–5 km</span><span class="pb"><span class="track"><span class="fill" style="width:31.4%"></span><b>11%</b></span><span class="track"><span class="fill t" style="width:28.6%"></span><b>10%</b></span></span></div><div class="pair"><span class="l">5–10 km</span><span class="pb"><span class="track"><span class="fill" style="width:94.3%"></span><b>33%</b></span><span class="track"><span class="fill t" style="width:100.0%"></span><b>35%</b></span></span></div><div class="pair"><span class="l">10–20 km</span><span class="pb"><span class="track"><span class="fill" style="width:62.9%"></span><b>22%</b></span><span class="track"><span class="fill t" style="width:62.9%"></span><b>22%</b></span></span></div><div class="pair"><span class="l">20 km +</span><span class="pb"><span class="track"><span class="fill" style="width:42.9%"></span><b>15%</b></span><span class="track"><span class="fill t" style="width:34.3%"></span><b>12%</b></span></span></div></div>
+          <div class="src">Jobs e942c6ec-d681-4837-b765-86246c84e6ee · 5cb94a35-4015-49ef-8cb3-6aa3991fe070 · straight-line distance from each home bin; visitors with no resolved home excluded</div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="callout">
+      <div class="lab">The takeaway</div>
+      <p>Two malls with a shared catchment compete for the same people, but TriNoma wins the early afternoon and North EDSA wins the evening and the longer stay. That reads as a tenant-mix and opening-hours question, and it took one conversation.</p>
+    </div>
+
+    <h3 style="margin-top:28px">The raw shape</h3>
+    <p class="note" style="margin-bottom:8px">Jobs return JSON your agent or your own workflow can use directly. This is a trimmed <code>presence.compare</code> result.</p>
+<pre><span class="k">{</span>
+  <span class="s">"aois"</span>: [
+    { <span class="s">"aoi_id"</span>: <span class="s">"1f784211-…"</span>, <span class="s">"persons"</span>: <span class="n">84</span>, <span class="s">"median_dwell_s"</span>: <span class="n">869</span> },
+    { <span class="s">"aoi_id"</span>: <span class="s">"aaa709bc-…"</span>, <span class="s">"persons"</span>: <span class="n">70</span>, <span class="s">"median_dwell_s"</span>: <span class="n">1280</span> }
+  ],
+  <span class="s">"pairwise"</span>: [
+    { <span class="s">"a"</span>: <span class="s">"1f784211-…"</span>, <span class="s">"b"</span>: <span class="s">"aaa709bc-…"</span>,
+      <span class="s">"overlap_persons"</span>: <span class="n">35</span>, <span class="s">"share_of_a"</span>: <span class="n">0.42</span>, <span class="s">"share_of_b"</span>: <span class="n">0.50</span> }
+  ]
+}</pre>
+
+    <div class="callout">
+      <div class="lab">Replicable by design</div>
+      <p>Each job has an ID and fixed inputs: area, window and thresholds. Re-running the same request against the same data window returns the same structure.</p>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="num">04 · FAQ</div>
+    <h2>Common <span>questions.</span></h2>
+    <p class="intro">Short answers. Your MessyNet contact can go deeper on any of them.</p>
+
+    <details open><summary>Is this a headcount of how many people visited?</summary><div>
+      <p>No. The data is a mobility panel sample, not a census. Treat counts as relative: one site against another, one window against another, a share of a whole. Dwell time (median and mean) is measured on the sample and can be quoted as such.</p></div></details>
+
+    <details><summary>What data and dates are covered?</summary><div>
+      <p>The panel currently spans from October 2024 to early October 2026. Coverage varies by country and by day, so the agent checks <code>data_coverage</code> before choosing a window. The places catalogue covers Japan, the Philippines and Singapore today, and the Philippines is where we've found density strongest.</p></div></details>
+
+    <details><summary>Why did my query come back thin or empty?</summary><div>
+      <p>Usually the window is too short or the site too small for the panel. Widen the window, use a larger radius, or compare against a busier peer. Some outputs, such as visit-type mix and socio-economic scores, need more visitors than a three-day window gives.</p></div></details>
+
+    <details><summary>How long does a job take?</summary><div>
+      <p>Most finish in seconds once a worker picks them up. Large windows can queue for longer, so keep windows tight and let the agent batch independent jobs together. Anything unwanted can be cancelled.</p></div></details>
+
+    <details><summary>Do I need to know the job types or write code?</summary><div>
+      <p>No. Ask in plain language and name the places and dates. The agent chooses from the job catalogue and never invents job types. Developers can also call the same tools from their own MCP clients.</p></div></details>
+
+    <details><summary>Where do the place boundaries come from?</summary><div>
+      <p>Place geometries come from the Overture Maps Foundation catalogue. You can also define your own area as a point and radius or a polygon, which is useful for car parks, precincts or entrances.</p></div></details>
+
+    <details><summary>Does it expose personal data?</summary><div>
+      <p>No device IDs are exposed. Where individual-level structure is needed, such as trip chains, it is keyed to anonymous person IDs from the panel. Socio-economic scores are comparable only within one country.</p></div></details>
+
+    <details><summary>Can I feed results into my own workflows?</summary><div>
+      <p>Yes. Results are structured JSON, so an agent can pass them to a spreadsheet, a report, a dashboard or another tool in the same conversation. Typical uses are site selection, tenant-mix reviews, campaign planning and before-and-after comparisons.</p></div></details>
+
+    <details><summary>Who do I contact for access or a pilot?</summary><div>
+      <p>Write to <a href="mailto:brett@messy.network">brett@messy.network</a> with two or three sites and a time window, and we'll run a live comparison for you.</p></div></details>
+  </section>
+
+  <footer>
+    <span>MessyNet · MessyPaths MCP</span>
+    <span>Place geometries: Overture Maps. ODbL themes © OpenStreetMap contributors.</span>
+  </footer>
+</div>
+
+<script>
+document.querySelectorAll('.copy').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var el = document.getElementById(btn.getAttribute('data-target'));
+    var text = el.innerText.replace(/^\$ /,'');
+    function done(ok){ btn.textContent = ok ? 'Copied' : 'Select + copy'; setTimeout(function(){ btn.textContent='Copy'; }, 1600); }
+    try {
+      navigator.clipboard.writeText(text).then(function(){ done(true); }, function(){ fallback(); });
+    } catch(e){ fallback(); }
+    function fallback(){
+      try {
+        var r = document.createRange(); r.selectNodeContents(el);
+        var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+        done(document.execCommand('copy'));
+      } catch(e2){ done(false); }
+    }
+  });
+});
+</script>
+
+</body>
+</html>
